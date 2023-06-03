@@ -1,0 +1,72 @@
+import numpy as np
+
+def forward_backward(obs, states, start_prob, trans_prob, emission_prob):
+    # Forward pass
+    forward = np.zeros((len(states), len(obs)))
+    forward[:, 0] = start_prob * emission_prob[:, obs[0]]
+    
+    for t in range(1, len(obs)):
+        for j in range(len(states)):
+            forward[j, t] = np.sum(forward[:, t-1] * trans_prob[:, j]) * emission_prob[j, obs[t]]
+    
+    # Backward pass
+    backward = np.zeros((len(states), len(obs)))
+    backward[:, -1] = 1
+    
+    for t in reversed(range(len(obs)-1)):
+        for i in range(len(states)):
+            backward[i, t] = np.sum(backward[:, t+1] * trans_prob[i, :] * emission_prob[:, obs[t+1]])
+    
+    return forward, backward
+
+
+def expectation_maximization(obs, states, start_prob, trans_prob, emission_prob, num_iterations=100):
+    for iteration in range(num_iterations):
+        # Expectation step
+        forward, backward = forward_backward(obs, states, start_prob, trans_prob, emission_prob)
+        gamma = forward * backward / np.sum(forward * backward, axis=0)
+        
+        xi = np.zeros((len(states), len(states), len(obs) - 1))
+        for t in range(len(obs) - 1):
+            for i in range(len(states)):
+                for j in range(len(states)):
+                    xi[i, j, t] = (forward[i, t] * trans_prob[i, j] *
+                                   emission_prob[j, obs[t+1]] * backward[j, t+1]) / np.sum(forward * backward, axis=0)
+        
+        # Maximization step
+        start_prob = gamma[:, 0]
+        
+        for i in range(len(states)):
+            for j in range(len(states)):
+                trans_prob[i, j] = np.sum(xi[i, j, :]) / np.sum(gamma[i, :-1])
+        
+        for j in range(len(states)):
+            for k in range(len(obs)):
+                mask = obs == k
+                emission_prob[j, k] = np.sum(gamma[j, mask]) / np.sum(gamma[j, :])
+    
+    return start_prob, trans_prob, emission_prob
+
+
+# Example usage
+obs = [0, 1, 0, 2, 1]  # Observations
+states = [0, 1, 2]  # Hidden states
+
+# Initial guess for the parameters
+start_prob = np.array([0.6, 0.3, 0.1])
+trans_prob = np.array([[0.7, 0.2, 0.1],
+                       [0.3, 0.5, 0.2],
+                       [0.2, 0.3, 0.5]])
+emission_prob = np.array([[0.8, 0.1, 0.1],
+                          [0.2, 0.6, 0.2],
+                          [0.1, 0.3, 0.6]])
+
+# Run EM algorithm
+start_prob, trans_prob, emission_prob = expectation_maximization(obs, states, start_prob, trans_prob, emission_prob)
+
+print("Updated start probabilities:")
+print(start_prob)
+print("Updated transition probabilities:")
+print(trans_prob)
+print("Updated emission probabilities:")
+print(emission_prob)
