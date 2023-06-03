@@ -1,0 +1,32 @@
+import pymc3 as pm
+import numpy as np
+import theano
+
+# Load the MNIST dataset (preprocessed)
+(X_train, y_train), (X_test, y_test) = theano.tensor.nnet.neighbours.distcompile.mnist.load_data()
+
+# Preprocess the data (flatten and normalize)
+X_train = X_train.reshape((-1, 784)) / 255.0
+X_test = X_test.reshape((-1, 784)) / 255.0
+
+# Define the Bayesian neural network model
+with pm.Model() as model:
+    # Priors for weights and biases
+    w1 = pm.Normal('w1', mu=0, sd=1, shape=(784, 100))
+    b1 = pm.Normal('b1', mu=0, sd=1, shape=(100,))
+    w2 = pm.Normal('w2', mu=0, sd=1, shape=(100, 10))
+    b2 = pm.Normal('b2', mu=0, sd=1, shape=(10,))
+    
+    # Neural network architecture
+    hidden = pm.math.tanh(pm.math.dot(X_train, w1) + b1)
+    output = pm.math.softmax(pm.math.dot(hidden, w2) + b2)
+    
+    # Likelihood (multinomial)
+    y_obs = pm.Categorical('y_obs', p=output, observed=y_train)
+
+# Perform Bayesian parameter learning (sampling)
+with model:
+    trace = pm.sample(1000, tune=1000, cores=4)
+
+# Print the summary of parameter estimation
+print(pm.summary(trace))
