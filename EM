@@ -1,0 +1,50 @@
+import numpy as np
+
+def expectation_maximization(data, num_clusters, num_iterations):
+    num_samples = len(data)
+    num_dimensions = data.shape[1]
+
+    # Randomly initialize the parameters
+    means = np.random.randn(num_clusters, num_dimensions)
+    covariances = [np.eye(num_dimensions) for _ in range(num_clusters)]
+    weights = np.ones(num_clusters) / num_clusters
+
+    # EM algorithm
+    for iteration in range(num_iterations):
+        # E-step: Compute the responsibilities
+        responsibilities = np.zeros((num_samples, num_clusters))
+        for i in range(num_samples):
+            for j in range(num_clusters):
+                responsibilities[i, j] = weights[j] * multivariate_normal(data[i], means[j], covariances[j])
+            responsibilities[i, :] /= np.sum(responsibilities[i, :])
+
+        # M-step: Update the parameters
+        for j in range(num_clusters):
+            total_responsibility = np.sum(responsibilities[:, j])
+            weights[j] = total_responsibility / num_samples
+            means[j] = np.sum(responsibilities[:, j].reshape(-1, 1) * data, axis=0) / total_responsibility
+            covariances[j] = np.dot((responsibilities[:, j].reshape(-1, 1) * (data - means[j])).T, (data - means[j])) / total_responsibility
+
+    return means, covariances, weights
+
+def multivariate_normal(x, mean, covariance):
+    dim = len(x)
+    det = np.linalg.det(covariance)
+    inv = np.linalg.inv(covariance)
+    normalization = 1.0 / (np.power((2 * np.pi), dim / 2) * np.power(det, 0.5))
+    exponent = np.exp(-0.5 * np.dot(np.dot((x - mean).T, inv), (x - mean)))
+    return normalization * exponent
+
+# Example usage
+data = np.array([[1.5, 2.0], [2.2, 1.8], [1.9, 3.0], [2.5, 2.7], [2.8, 2.3]])
+num_clusters = 2
+num_iterations = 100
+
+means, covariances, weights = expectation_maximization(data, num_clusters, num_iterations)
+
+print("Means:")
+print(means)
+print("Covariances:")
+print(covariances)
+print("Weights:")
+print(weights)
