@@ -1,0 +1,60 @@
+import numpy as np
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Sample dataset
+X = np.array([[1, 'S'], [1, 'M'], [1, 'M'], [1, 'S'],
+              [1, 'S'], [2, 'S'], [2, 'M'], [2, 'M'],
+              [2, 'L'], [2, 'L'], [3, 'L'], [3, 'M'],
+              [3, 'M'], [3, 'L'], [3, 'L']])
+y = np.array(['N', 'N', 'Y', 'Y', 'N', 'N', 'N', 'Y',
+              'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'N'])
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create the Naive Bayes classifier
+classifier = GaussianNB()
+
+# Train the classifier
+classifier.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = classifier.predict(X_test)
+
+# Compute accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+# Print the accuracy
+print("Accuracy:", accuracy)
+import numpy as np
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Sample dataset
+X = np.array([[1, 'S'], [1, 'M'], [1, 'M'], [1, 'S'],
+              [1, 'S'], [2, 'S'], [2, 'M'], [2, 'M'],
+              [2, 'L'], [2, 'L'], [3, 'L'], [3, 'M'],
+              [3, 'M'], [3, 'L'], [3, 'L']])
+y = np.array(['N', 'N', 'Y', 'Y', 'N', 'N', 'N', 'Y',
+              'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'N'])
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create the Naive Bayes classifier
+classifier = GaussianNB()
+
+# Train the classifier
+classifier.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = classifier.predict(X_test)
+
+# Compute accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+# Print the accuracy
+print("Accuracy:", accuracy)
