@@ -1,0 +1,29 @@
+from hmmlearn import hmm
+import numpy as np
+
+# Define the HMM model
+model = hmm.MultinomialHMM(n_components=3)
+
+# Set the initial state probabilities
+model.startprob_ = np.array([0.6, 0.3, 0.1])
+
+# Set the transition probabilities
+model.transmat_ = np.array([[0.7, 0.2, 0.1],
+                            [0.3, 0.5, 0.2],
+                            [0.2, 0.3, 0.5]])
+
+# Set the emission probabilities
+model.emissionprob_ = np.array([[0.5, 0.3, 0.2],
+                                [0.2, 0.5, 0.3],
+                                [0.3, 0.2, 0.5]])
+
+# Generate a sequence of hidden states and observations
+hidden_states, observations = model.sample(n_samples=10)
+
+# Perform inference to predict the hidden states given the observations
+predicted_hidden_states = model.predict(observations)
+
+# Print the generated hidden states, observations, and predicted hidden states
+print("Hidden States:", hidden_states)
+print("Observations:", observations)
+print("Predicted Hidden States:", predicted_hidden_states)
