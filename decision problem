@@ -1,0 +1,33 @@
+from scipy.optimize import linprog
+
+# Define the objective function coefficients (profits per unit)
+profit_coefficients = [-10, -6, -8]
+
+# Define the constraint matrix (resource requirements)
+constraint_matrix = [
+    [2, 1, 1],  # Resource 1 constraint coefficients
+    [1, 2, 2]   # Resource 2 constraint coefficients
+]
+
+# Define the constraint vector (resource availability)
+constraint_vector = [8, 12]
+
+# Define the inequality signs for the constraints (<=)
+inequality_signs = ['<=', '<=']
+
+# Define the bounds for the decision variables (minimum production quantities)
+bounds = [(0, None), (0, None), (0, None)]
+
+# Solve the linear programming problem
+result = linprog(c=profit_coefficients, A_ub=constraint_matrix, b_ub=constraint_vector, bounds=bounds, method='highs')
+
+# Extract the optimal solution
+optimal_production_quantities = result.x
+optimal_profit = -result.fun
+
+# Print the results
+print("Optimal Production Quantities:")
+for i, quantity in enumerate(optimal_production_quantities):
+    print(f"Product {i+1}: {quantity}")
+
+print("Optimal Profit:", optimal_profit)
